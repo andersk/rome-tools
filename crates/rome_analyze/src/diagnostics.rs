@@ -15,7 +15,7 @@ use crate::rule::RuleDiagnostic;
 ///
 /// This wrapper serves as glue, which eventually is able to spit out full fledged diagnostics.
 ///
-#[derive(Debug)]
+#[derive(Clone, Debug)]
 pub struct AnalyzerDiagnostic {
     kind: DiagnosticKind,
     /// Series of code suggestions offered by rule code actions
@@ -31,7 +31,7 @@ impl From<RuleDiagnostic> for AnalyzerDiagnostic {
     }
 }
 
-#[derive(Debug)]
+#[derive(Clone, Debug)]
 enum DiagnosticKind {
     /// It holds various info related to diagnostics emitted by the rules
     Rule(RuleDiagnostic),
@@ -98,6 +98,10 @@ impl Diagnostic for AnalyzerDiagnostic {
 
         Ok(())
     }
+
+    fn to_owned_diagnostic<'a>(&self) -> Box<dyn Diagnostic + Send + Sync + 'a> {
+        Box::new(self.clone())
+    }
 }
 
 impl AnalyzerDiagnostic {
@@ -138,7 +142,7 @@ impl AnalyzerDiagnostic {
     }
 }
 
-#[derive(Debug, Diagnostic)]
+#[derive(Clone, Debug, Diagnostic)]
 #[diagnostic(severity = Warning)]
 pub(crate) struct SuppressionDiagnostic {
     #[category]

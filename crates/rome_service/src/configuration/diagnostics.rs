@@ -9,7 +9,7 @@ use serde::{Deserialize, Serialize};
 use std::fmt::{Debug, Formatter};
 
 /// Series of errors that can be thrown while computing the configuration
-#[derive(serde::Serialize, serde::Deserialize)]
+#[derive(Clone, serde::Serialize, serde::Deserialize)]
 pub enum ConfigurationDiagnostic {
     /// Thrown when the program can't serialize the configuration, while saving it
     SerializationError(SerializationError),
@@ -157,9 +157,13 @@ impl Diagnostic for ConfigurationDiagnostic {
             ConfigurationDiagnostic::InvalidIgnorePattern(error) => error.verbose_advices(visitor),
         }
     }
+
+    fn to_owned_diagnostic<'a>(&self) -> Box<dyn Diagnostic + Send + Sync + 'a> {
+        Box::new(self.clone())
+    }
 }
 
-#[derive(Debug, Serialize, Deserialize, Default)]
+#[derive(Clone, Debug, Serialize, Deserialize, Default)]
 pub struct ConfigurationAdvices {
     hint: Option<MarkupBuf>,
     known_keys: Option<(MarkupBuf, Vec<MarkupBuf>)>,
@@ -184,7 +188,7 @@ impl Advices for ConfigurationAdvices {
     }
 }
 
-#[derive(Debug, Serialize, Deserialize, Diagnostic)]
+#[derive(Clone, Debug, Serialize, Deserialize, Diagnostic)]
 #[diagnostic(
     message = "Failed to serialize",
     category = "configuration",
@@ -192,7 +196,7 @@ impl Advices for ConfigurationAdvices {
 )]
 pub struct SerializationError;
 
-#[derive(Debug, Serialize, Deserialize, Diagnostic)]
+#[derive(Clone, Debug, Serialize, Deserialize, Diagnostic)]
 #[diagnostic(
     message = "It seems that a configuration file already exists",
     category = "configuration",
@@ -200,7 +204,7 @@ pub struct SerializationError;
 )]
 pub struct ConfigAlreadyExists {}
 
-#[derive(Debug, Serialize, Deserialize, Diagnostic)]
+#[derive(Clone, Debug, Serialize, Deserialize, Diagnostic)]
 #[diagnostic(
     category = "configuration",
     severity = Error,

@@ -4,7 +4,7 @@ use rome_console::{markup, ConsoleExt, EnvConsole};
 use rome_diagnostics::{Advices, Diagnostic, LogCategory, PrintDiagnostic, Resource, Visit};
 use rome_rowan::{TextRange, TextSize};
 
-#[derive(Debug, Diagnostic)]
+#[derive(Clone, Debug, Diagnostic)]
 #[diagnostic(
     category = "flags/invalid",
     message(
@@ -25,7 +25,7 @@ struct CliDiagnostic {
     advices: CliAdvices,
 }
 
-#[derive(Debug)]
+#[derive(Clone, Debug)]
 struct CliAdvices {
     suggested_name: String,
     suggested_command: String,

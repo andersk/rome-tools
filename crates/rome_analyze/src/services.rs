@@ -5,7 +5,7 @@ use std::{
     collections::HashMap,
 };
 
-#[derive(Debug, Diagnostic)]
+#[derive(Clone, Debug, Diagnostic)]
 #[diagnostic(category = "internalError/io", tags(INTERNAL))]
 pub struct MissingServicesDiagnostic {
     #[message]

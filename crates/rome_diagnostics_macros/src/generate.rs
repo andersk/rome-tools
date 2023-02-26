@@ -38,6 +38,13 @@ pub(crate) fn generate_diagnostic(input: DeriveInput) -> TokenStream {
             #location
             #tags
             #source
+
+            fn to_owned_diagnostic<'_a>(&self) -> Box<dyn rome_diagnostics::Diagnostic + Send + Sync + '_a>
+            where
+                Self: Send + Sync + '_a,
+            {
+                Box::new((*self).clone())
+            }
         }
     }
 }

@@ -372,7 +372,11 @@ pub enum RuleError {
     },
 }
 
-impl Diagnostic for RuleError {}
+impl Diagnostic for RuleError {
+    fn to_owned_diagnostic<'a>(&self) -> Box<dyn Diagnostic + Send + Sync + 'a> {
+        Box::new(self.clone())
+    }
+}
 
 impl std::fmt::Display for RuleError {
     fn fmt(&self, fmt: &mut std::fmt::Formatter) -> std::fmt::Result {

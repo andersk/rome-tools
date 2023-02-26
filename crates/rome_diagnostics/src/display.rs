@@ -33,6 +33,7 @@ impl<'fmt, D: AsDiagnostic + ?Sized> std::fmt::Display for PrintDescription<'fmt
 
 /// Helper struct for printing a diagnostic as markup into any formatter
 /// implementing [rome_console::fmt::Write].
+#[derive(Clone)]
 pub struct PrintDiagnostic<'fmt, D: ?Sized> {
     diag: &'fmt D,
     verbose: bool,
@@ -567,17 +568,18 @@ mod tests {
 
     use crate::{self as rome_diagnostics};
     use crate::{
-        Advices, Diagnostic, Location, LogCategory, PrintDiagnostic, Resource, SourceCode, Visit,
+        Advices, Diagnostic, Error, Location, LogCategory, PrintDiagnostic, Resource, SourceCode,
+        Visit,
     };
 
-    #[derive(Debug)]
+    #[derive(Clone, Debug)]
     struct TestDiagnostic<A> {
         path: Option<String>,
         span: Option<TextRange>,
         source_code: Option<String>,
         advice: Option<A>,
         verbose_advice: Option<A>,
-        source: Option<Box<dyn Diagnostic>>,
+        source: Option<Error>,
     }
 
     impl<A> TestDiagnostic<A> {
@@ -604,7 +606,7 @@ mod tests {
         }
     }
 
-    impl<A: Advices + std::fmt::Debug> Diagnostic for TestDiagnostic<A> {
+    impl<A: Advices + Clone + std::fmt::Debug> Diagnostic for TestDiagnostic<A> {
         fn category(&self) -> Option<&'static Category> {
             Some(category!("internalError/io"))
         }
@@ -652,9 +654,16 @@ mod tests {
         fn source(&self) -> Option<&dyn Diagnostic> {
             self.source.as_deref()
         }
+
+        fn to_owned_diagnostic<'a>(&self) -> Box<dyn Diagnostic + Send + Sync + 'a>
+        where
+            Self: Send + Sync + 'a,
+        {
+            Box::new(self.clone())
+        }
     }
 
-    #[derive(Debug)]
+    #[derive(Clone, Debug)]
     struct LogAdvices;
 
     impl Advices for LogAdvices {
@@ -666,7 +675,7 @@ mod tests {
         }
     }
 
-    #[derive(Debug)]
+    #[derive(Clone, Debug)]
     struct ListAdvice;
 
     impl Advices for ListAdvice {
@@ -675,7 +684,7 @@ mod tests {
         }
     }
 
-    #[derive(Debug)]
+    #[derive(Clone, Debug)]
     struct FrameAdvice;
 
     impl Advices for FrameAdvice {
@@ -691,7 +700,7 @@ mod tests {
         }
     }
 
-    #[derive(Debug)]
+    #[derive(Clone, Debug)]
     struct DiffAdvice;
 
     impl Advices for DiffAdvice {
@@ -702,7 +711,7 @@ mod tests {
         }
     }
 
-    #[derive(Debug)]
+    #[derive(Clone, Debug)]
     struct BacktraceAdvice;
 
     impl Advices for BacktraceAdvice {
@@ -725,7 +734,7 @@ mod tests {
         }
     }
 
-    #[derive(Debug)]
+    #[derive(Clone, Debug)]
     struct CommandAdvice;
 
     impl Advices for CommandAdvice {
@@ -734,7 +743,7 @@ mod tests {
         }
     }
 
-    #[derive(Debug)]
+    #[derive(Clone, Debug)]
     struct GroupAdvice;
 
     impl Advices for GroupAdvice {

@@ -273,12 +273,15 @@ mod internal {
     /// Diagnostic type returned by [super::DiagnosticExt::context], uses
     /// `message` as its message and description, and `source` as its source
     /// diagnostic.
+    #[derive(Clone)]
     pub struct ContextDiagnostic<M, E> {
         pub(super) message: M,
         pub(super) source: E,
     }
 
-    impl<M: fmt::Display + 'static, E: AsDiagnostic> Diagnostic for ContextDiagnostic<M, E> {
+    impl<M: Clone + fmt::Display + 'static, E: AsDiagnostic + Clone> Diagnostic
+        for ContextDiagnostic<M, E>
+    {
         fn category(&self) -> Option<&'static Category> {
             self.source.as_diagnostic().category()
         }
@@ -316,6 +319,13 @@ mod internal {
 
         fn source(&self) -> Option<&dyn Diagnostic> {
             Some(self.source.as_dyn())
+        }
+
+        fn to_owned_diagnostic<'a>(&self) -> Box<dyn Diagnostic + Send + Sync + 'a>
+        where
+            Self: Send + Sync + 'a,
+        {
+            Box::new(self.clone())
         }
     }
 
@@ -362,6 +372,7 @@ mod internal {
 
     /// Diagnostic type returned by [super::DiagnosticExt::with_category],
     /// uses `category` as its category if `source` doesn't return one.
+    #[derive(Clone)]
     pub struct CategoryDiagnostic<E> {
         pub(super) category: &'static Category,
         pub(super) source: E,
@@ -376,7 +387,7 @@ mod internal {
         }
     }
 
-    impl<E: AsDiagnostic> Diagnostic for CategoryDiagnostic<E> {
+    impl<E: AsDiagnostic + Clone> Diagnostic for CategoryDiagnostic<E> {
         fn category(&self) -> Option<&'static Category> {
             Some(
                 self.source
@@ -413,10 +424,18 @@ mod internal {
         fn tags(&self) -> DiagnosticTags {
             self.source.as_diagnostic().tags()
         }
+
+        fn to_owned_diagnostic<'a>(&self) -> Box<dyn Diagnostic + Send + Sync + 'a>
+        where
+            Self: Send + Sync + 'a,
+        {
+            Box::new(self.clone())
+        }
     }
 
     /// Diagnostic type returned by [super::DiagnosticExt::with_file_path],
     /// uses `path` as its location path if `source` doesn't return one.
+    #[derive(Clone)]
     pub struct FilePathDiagnostic<E> {
         pub(super) path: Option<Resource<String>>,
         pub(super) source: E,
@@ -431,7 +450,7 @@ mod internal {
         }
     }
 
-    impl<E: AsDiagnostic> Diagnostic for FilePathDiagnostic<E> {
+    impl<E: AsDiagnostic + Clone> Diagnostic for FilePathDiagnostic<E> {
         fn category(&self) -> Option<&'static Category> {
             self.source.as_diagnostic().category()
         }
@@ -479,10 +498,18 @@ mod internal {
         fn tags(&self) -> DiagnosticTags {
             self.source.as_diagnostic().tags()
         }
+
+        fn to_owned_diagnostic<'a>(&self) -> Box<dyn Diagnostic + Send + Sync + 'a>
+        where
+            Self: Send + Sync + 'a,
+        {
+            Box::new(self.clone())
+        }
     }
 
     /// Diagnostic type returned by [super::DiagnosticExt::with_file_span],
     /// uses `span` as its location span instead of the one returned by `source`.
+    #[derive(Clone)]
     pub struct FileSpanDiagnostic<E> {
         pub(super) span: Option<TextRange>,
         pub(super) source: E,
@@ -497,7 +524,7 @@ mod internal {
         }
     }
 
-    impl<E: AsDiagnostic> Diagnostic for FileSpanDiagnostic<E> {
+    impl<E: AsDiagnostic + Clone> Diagnostic for FileSpanDiagnostic<E> {
         fn category(&self) -> Option<&'static Category> {
             self.source.as_diagnostic().category()
         }
@@ -534,17 +561,25 @@ mod internal {
         fn tags(&self) -> DiagnosticTags {
             self.source.as_diagnostic().tags()
         }
+
+        fn to_owned_diagnostic<'a>(&self) -> Box<dyn Diagnostic + Send + Sync + 'a>
+        where
+            Self: Send + Sync + 'a,
+        {
+            Box::new(self.clone())
+        }
     }
 
     /// Diagnostic type returned by [super::DiagnosticExt::with_file_source_code],
     /// uses `source_code` as its location source code if `source` doesn't
     /// return one.
+    #[derive(Clone)]
     pub struct FileSourceCodeDiagnostic<E> {
         pub(super) source_code: Option<SourceCode<String, LineIndexBuf>>,
         pub(super) source: E,
     }
 
-    impl<E: Debug> Debug for FileSourceCodeDiagnostic<E> {
+    impl<E: Clone + Debug> Debug for FileSourceCodeDiagnostic<E> {
         fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
             f.debug_struct("Diagnostic")
                 .field("source_code", &self.source_code)
@@ -553,7 +588,7 @@ mod internal {
         }
     }
 
-    impl<E: AsDiagnostic> Diagnostic for FileSourceCodeDiagnostic<E> {
+    impl<E: AsDiagnostic + Clone> Diagnostic for FileSourceCodeDiagnostic<E> {
         fn category(&self) -> Option<&'static Category> {
             self.source.as_diagnostic().category()
         }
@@ -609,6 +644,13 @@ mod internal {
         fn tags(&self) -> DiagnosticTags {
             self.source.as_diagnostic().tags()
         }
+
+        fn to_owned_diagnostic<'a>(&self) -> Box<dyn Diagnostic + Send + Sync + 'a>
+        where
+            Self: Send + Sync + 'a,
+        {
+            Box::new(self.clone())
+        }
     }
 
     /// Helper wrapper for a [Visitor], automatically inject `source_code` into
@@ -661,6 +703,7 @@ mod internal {
 
     /// Diagnostic type returned by [super::DiagnosticExt::with_tags],
     /// merges `tags` with the tags of its source
+    #[derive(Clone)]
     pub struct TagsDiagnostic<E> {
         pub(super) tags: DiagnosticTags,
         pub(super) source: E,
@@ -675,7 +718,7 @@ mod internal {
         }
     }
 
-    impl<E: AsDiagnostic> Diagnostic for TagsDiagnostic<E> {
+    impl<E: AsDiagnostic + Clone> Diagnostic for TagsDiagnostic<E> {
         fn category(&self) -> Option<&'static Category> {
             self.source.as_diagnostic().category()
         }
@@ -707,10 +750,18 @@ mod internal {
         fn tags(&self) -> DiagnosticTags {
             self.source.as_diagnostic().tags() | self.tags
         }
+
+        fn to_owned_diagnostic<'a>(&self) -> Box<dyn Diagnostic + Send + Sync + 'a>
+        where
+            Self: Send + Sync + 'a,
+        {
+            Box::new(self.clone())
+        }
     }
 
     /// Diagnostic type returned by [super::DiagnosticExt::with_severity],
     /// replaces `severity` with the severity of its source
+    #[derive(Clone)]
     pub struct SeverityDiagnostic<E> {
         pub(super) severity: Severity,
         pub(super) source: E,
@@ -725,7 +776,7 @@ mod internal {
         }
     }
 
-    impl<E: AsDiagnostic> Diagnostic for SeverityDiagnostic<E> {
+    impl<E: AsDiagnostic + Clone> Diagnostic for SeverityDiagnostic<E> {
         fn category(&self) -> Option<&'static Category> {
             self.source.as_diagnostic().category()
         }
@@ -756,6 +807,13 @@ mod internal {
 
         fn tags(&self) -> DiagnosticTags {
             self.source.as_diagnostic().tags()
+        }
+
+        fn to_owned_diagnostic<'a>(&self) -> Box<dyn Diagnostic + Send + Sync + 'a>
+        where
+            Self: Send + Sync + 'a,
+        {
+            Box::new(self.clone())
         }
     }
 }

@@ -61,7 +61,7 @@ impl RenamableNode for AnyJsRenamableDeclaration {
     }
 }
 
-#[derive(Deserialize, Serialize, Debug)]
+#[derive(Clone, Deserialize, Serialize, Debug)]
 pub enum RenameError {
     CannotFindDeclaration(String),
     CannotBeRenamed {
@@ -122,6 +122,10 @@ impl Diagnostic for RenameError {
         } else {
             location.build()
         }
+    }
+
+    fn to_owned_diagnostic<'a>(&self) -> Box<dyn Diagnostic + Send + Sync + 'a> {
+        Box::new(self.clone())
     }
 }
 

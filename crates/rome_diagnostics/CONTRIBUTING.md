@@ -92,7 +92,7 @@ implementing the trait easier:
 
 ```rust
 // The Diagnostic trait requires Debug to be implemented
-#[derive(Debug, Diagnostic)]
+#[derive(Clone, Debug, Diagnostic)]
 // The category, severity, description, message, location and tags can be
 // specified statically on the type itself using the #[diagnostic] attribute
 #[diagnostic(severity = Warning, category = "internalError/fs")]

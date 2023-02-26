@@ -116,6 +116,10 @@ impl super::Diagnostic for Diagnostic {
             .as_deref()
             .map(|source| source as &dyn super::Diagnostic)
     }
+
+    fn to_owned_diagnostic<'a>(&self) -> Box<dyn crate::Diagnostic + Send + Sync + 'a> {
+        Box::new(self.clone())
+    }
 }
 
 /// Wrapper type implementing [std::fmt::Display] for types implementing [Diagnostic](super::Diagnostic),
@@ -368,7 +372,7 @@ mod tests {
     };
     use rome_diagnostics_macros::Diagnostic;
 
-    #[derive(Debug, Diagnostic)]
+    #[derive(Clone, Debug, Diagnostic)]
     #[diagnostic(
         severity = Warning,
         category = "internalError/io",
@@ -403,7 +407,7 @@ mod tests {
         }
     }
 
-    #[derive(Debug)]
+    #[derive(Clone, Debug)]
     struct TestAdvices;
 
     impl Advices for TestAdvices {

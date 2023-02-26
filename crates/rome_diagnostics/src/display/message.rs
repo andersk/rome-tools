@@ -11,7 +11,7 @@ use termcolor::NoColor;
 /// ```
 /// use rome_diagnostics::{Diagnostic, MessageAndDescription};
 ///
-/// #[derive(Debug, Diagnostic)]
+/// #[derive(Clone, Debug, Diagnostic)]
 /// struct TestDiagnostic {
 ///     #[message]
 ///     #[description]

@@ -17,7 +17,7 @@ use crate::{Category, Location, Visit};
 ///
 /// ```
 /// # use rome_diagnostics::Diagnostic;
-/// #[derive(Debug, Diagnostic)]
+/// #[derive(Clone, Debug, Diagnostic)]
 /// #[diagnostic(category = "lint/style/noShoutyConstants", tags(FIXABLE))]
 /// struct ExampleDiagnostic {
 ///     #[message]
@@ -105,6 +105,10 @@ pub trait Diagnostic: Debug {
     fn source(&self) -> Option<&dyn Diagnostic> {
         None
     }
+
+    fn to_owned_diagnostic<'a>(&self) -> Box<dyn Diagnostic + Send + Sync + 'a>
+    where
+        Self: Send + Sync + 'a;
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize, Deserialize)]
@@ -154,7 +158,11 @@ bitflags! {
 // Implement the `Diagnostic` on the `Infallible` error type from the standard
 // library as a utility for implementing signatures that require a diagnostic
 // type when the operation can never fail
-impl Diagnostic for Infallible {}
+impl Diagnostic for Infallible {
+    fn to_owned_diagnostic<'a>(&self) -> Box<dyn Diagnostic + Send + Sync + 'a> {
+        match *self {}
+    }
+}
 
 pub(crate) mod internal {
     //! The `AsDiagnostic` trait needs to be declared as public as its referred

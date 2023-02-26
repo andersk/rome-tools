@@ -7,7 +7,7 @@ use rome_diagnostics::{
 use rome_rowan::{TextRange, TextSize};
 use rome_text_edit::TextEdit;
 
-#[derive(Debug, Diagnostic)]
+#[derive(Clone, Debug, Diagnostic)]
 #[diagnostic(
     category = "lint/style/noShoutyConstants",
     message = "Redundant constant reference",
@@ -26,7 +26,7 @@ struct LintDiagnostic {
     verbose_advices: LintVerboseAdvices,
 }
 
-#[derive(Debug)]
+#[derive(Clone, Debug)]
 struct LintAdvices {
     path: String,
     declaration_span: TextRange,
@@ -56,7 +56,7 @@ impl Advices for LintAdvices {
     }
 }
 
-#[derive(Debug)]
+#[derive(Clone, Debug)]
 struct LintVerboseAdvices {
     path: String,
 }

@@ -99,6 +99,10 @@ impl Diagnostic for PatternError {
     fn message(&self, fmt: &mut rome_console::fmt::Formatter<'_>) -> std::io::Result<()> {
         fmt.write_markup(markup!({ self.msg }))
     }
+
+    fn to_owned_diagnostic<'a>(&self) -> Box<dyn Diagnostic + Send + Sync + 'a> {
+        Box::new(self.clone())
+    }
 }
 
 #[cfg(test)]

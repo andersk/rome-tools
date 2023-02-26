@@ -11,7 +11,7 @@ use std::str::FromStr;
 use std::{fmt, path};
 
 /// A pattern parsing error.
-#[derive(Debug)]
+#[derive(Clone, Debug)]
 #[allow(missing_copy_implementations)]
 pub struct PatternError {
     /// The approximate character index of where the error occurred.

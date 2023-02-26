@@ -2,22 +2,22 @@
 //! such as [std::error::Error] or [std::io::Error] in newtypes implementing the
 //! [Diagnostic] trait
 
-use std::io;
+use std::{io, sync::Arc};
 
 use rome_console::{fmt, markup};
 
 use crate::{category, Category, Diagnostic, DiagnosticTags};
 
 /// Implements [Diagnostic] over types implementing [std::error::Error].
-#[derive(Debug)]
+#[derive(Clone, Debug)]
 pub struct StdError {
-    error: Box<dyn std::error::Error + Send + Sync>,
+    error: Arc<dyn std::error::Error + Send + Sync>,
 }
 
 impl<E: std::error::Error + Send + Sync + 'static> From<E> for StdError {
     fn from(error: E) -> Self {
         Self {
-            error: Box::new(error),
+            error: Arc::new(error),
         }
     }
 }
@@ -30,6 +30,10 @@ impl Diagnostic for StdError {
     fn message(&self, fmt: &mut fmt::Formatter<'_>) -> io::Result<()> {
         fmt.write_markup(markup!({ AsConsoleDisplay(&self.error) }))
     }
+
+    fn to_owned_diagnostic<'a>(&self) -> Box<dyn Diagnostic + Send + Sync + 'a> {
+        Box::new(self.clone())
+    }
 }
 
 struct AsConsoleDisplay<'a, T>(&'a T);
@@ -41,14 +45,16 @@ impl<T: std::fmt::Display> fmt::Display for AsConsoleDisplay<'_, T> {
 }
 
 /// Implements [Diagnostic] over for [io::Error].
-#[derive(Debug)]
+#[derive(Clone, Debug)]
 pub struct IoError {
-    error: io::Error,
+    error: Arc<io::Error>,
 }
 
 impl From<io::Error> for IoError {
     fn from(error: io::Error) -> Self {
-        Self { error }
+        Self {
+            error: Arc::new(error),
+        }
     }
 }
 
@@ -69,10 +75,14 @@ impl Diagnostic for IoError {
         let error = self.error.to_string();
         fmt.write_str(&error)
     }
+
+    fn to_owned_diagnostic<'a>(&self) -> Box<dyn Diagnostic + Send + Sync + 'a> {
+        Box::new(self.clone())
+    }
 }
 
 /// Implements [Diagnostic] over for [pico_args::Error].
-#[derive(Debug)]
+#[derive(Clone, Debug)]
 pub struct PicoArgsError {
     error: pico_args::Error,
 }
@@ -99,5 +109,9 @@ impl Diagnostic for PicoArgsError {
     fn message(&self, fmt: &mut fmt::Formatter<'_>) -> io::Result<()> {
         let error = self.error.to_string();
         fmt.write_str(&error)
+    }
+
+    fn to_owned_diagnostic<'a>(&self) -> Box<dyn Diagnostic + Send + Sync + 'a> {
+        Box::new(self.clone())
     }
 }

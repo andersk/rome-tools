@@ -158,7 +158,7 @@ where
     }
 }
 
-#[derive(Debug)]
+#[derive(Clone, Debug)]
 /// Utility type implementing [Advices] that emits a
 /// code suggestion with the provided text
 pub struct CodeSuggestionAdvice<M> {

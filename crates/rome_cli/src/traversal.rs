@@ -267,7 +267,7 @@ struct ProcessMessagesOptions<'ctx> {
     verbose: bool,
 }
 
-#[derive(Debug, Diagnostic)]
+#[derive(Clone, Debug, Diagnostic)]
 #[diagnostic(
     category = "format",
     message = "File content differs from formatting output"
@@ -279,7 +279,7 @@ struct CIDiffDiagnostic<'a> {
     diff: FormatDiffAdvice<'a>,
 }
 
-#[derive(Debug, Diagnostic)]
+#[derive(Clone, Debug, Diagnostic)]
 #[diagnostic(
     severity = Information,
     category = "format",
@@ -292,7 +292,7 @@ struct FormatDiffDiagnostic<'a> {
     diff: FormatDiffAdvice<'a>,
 }
 
-#[derive(Debug)]
+#[derive(Clone, Debug)]
 struct FormatDiffAdvice<'a> {
     old: &'a str,
     new: &'a str,
@@ -305,7 +305,7 @@ impl Advices for FormatDiffAdvice<'_> {
     }
 }
 
-#[derive(Debug, Diagnostic)]
+#[derive(Clone, Debug, Diagnostic)]
 struct TraversalDiagnostic<'a> {
     #[location(resource)]
     file_name: Option<&'a str>,
@@ -951,7 +951,7 @@ where
     }
 }
 
-#[derive(Debug, Diagnostic)]
+#[derive(Clone, Debug, Diagnostic)]
 #[diagnostic(category = "internalError/panic", tags(INTERNAL))]
 struct PanicDiagnostic {
     #[description]
@@ -959,11 +959,11 @@ struct PanicDiagnostic {
     message: String,
 }
 
-#[derive(Debug, Diagnostic)]
+#[derive(Clone, Debug, Diagnostic)]
 #[diagnostic(category = "files/missingHandler", message = "unhandled file type")]
 struct UnhandledDiagnostic;
 
-#[derive(Debug, Diagnostic)]
+#[derive(Clone, Debug, Diagnostic)]
 #[diagnostic(category = "parse", message = "Skipped file with syntax errors")]
 struct SkippedDiagnostic;
 

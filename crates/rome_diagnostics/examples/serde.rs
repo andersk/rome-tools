@@ -3,7 +3,7 @@ use rome_diagnostics::{Diagnostic, LineIndexBuf, PrintDiagnostic, Resource, Resu
 use rome_rowan::{TextRange, TextSize};
 use serde_json::Error;
 
-#[derive(Debug, Diagnostic)]
+#[derive(Clone, Debug, Diagnostic)]
 #[diagnostic(category = "internalError/io", tags(INTERNAL))]
 struct SerdeDiagnostic {
     #[message]

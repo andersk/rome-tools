@@ -1,6 +1,6 @@
 use rome_diagnostics::Diagnostic;
 
-#[derive(Debug, Diagnostic)]
+#[derive(Clone, Debug, Diagnostic)]
 struct TestDiagnostic {
     #[location = Identifier]
     location: (),

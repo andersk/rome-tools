@@ -146,7 +146,7 @@ pub fn assert(code: &str, test_name: &str) {
     assertions.check(code, test_name, events_by_pos);
 }
 
-#[derive(Debug, Diagnostic)]
+#[derive(Clone, Debug, Diagnostic)]
 #[diagnostic(category = "semanticTests")]
 struct TestSemanticDiagnostic {
     #[message]
@@ -174,7 +174,7 @@ impl TestSemanticDiagnostic {
     }
 }
 
-#[derive(Debug, Default)]
+#[derive(Clone, Debug, Default)]
 struct TestAdvice {
     advices: Vec<(Option<TextRange>, String)>,
 }

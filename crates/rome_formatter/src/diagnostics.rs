@@ -114,6 +114,10 @@ impl Diagnostic for FormatError {
             }
         }
     }
+
+    fn to_owned_diagnostic<'a>(&self) -> Box<dyn Diagnostic + Send + Sync + 'a> {
+        Box::new(self.clone())
+    }
 }
 
 #[derive(Debug, Copy, Clone, Eq, PartialEq)]

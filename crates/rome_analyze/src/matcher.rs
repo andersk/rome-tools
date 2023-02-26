@@ -215,7 +215,7 @@ mod tests {
 
     struct SuppressionMatcher;
 
-    #[derive(Debug, Diagnostic)]
+    #[derive(Clone, Debug, Diagnostic)]
     #[diagnostic(category = "args/fileNotFound", message = "test_suppression")]
     struct TestDiagnostic {
         #[location(span)]

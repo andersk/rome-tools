@@ -167,7 +167,7 @@ where
     }
 }
 
-#[derive(Debug, Diagnostic)]
+#[derive(Clone, Debug, Diagnostic)]
 #[diagnostic(severity = Warning, category = "internalError/fs")]
 struct FileSystemDiagnostic {
     #[location(resource)]

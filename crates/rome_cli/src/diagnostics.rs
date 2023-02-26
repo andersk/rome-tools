@@ -18,7 +18,7 @@ fn command_name() -> String {
 /// A diagnostic that is emitted when running rome via CLI.
 ///
 /// When displaying the diagnostic,
-#[derive(Debug)]
+#[derive(Clone, Debug)]
 pub enum CliDiagnostic {
     /// Returned when it is called with a subcommand it doesn't know
     UnknownCommand(UnknownCommand),
@@ -50,7 +50,7 @@ pub enum CliDiagnostic {
     NoFilesWereProcessed(NoFilesWereProcessed),
 }
 
-#[derive(Debug, Diagnostic)]
+#[derive(Clone, Debug, Diagnostic)]
 #[diagnostic(
     category = "flags/invalid",
     severity = Error,
@@ -63,7 +63,7 @@ pub struct UnknownCommand {
     command_name: String,
 }
 
-#[derive(Debug, Diagnostic)]
+#[derive(Clone, Debug, Diagnostic)]
 #[diagnostic(
 category = "flags/invalid",
     severity = Error,
@@ -76,7 +76,7 @@ pub struct UnknownCommandHelp {
     command_name: String,
 }
 
-#[derive(Debug, Diagnostic)]
+#[derive(Clone, Debug, Diagnostic)]
 #[diagnostic(
     category = "flags/invalid",
     severity = Error,
@@ -91,7 +91,7 @@ pub struct ParseDiagnostic {
     source: Option<Error>,
 }
 
-#[derive(Debug, Diagnostic)]
+#[derive(Clone, Debug, Diagnostic)]
 #[diagnostic(
     category = "flags/invalid",
     severity = Error,
@@ -106,7 +106,7 @@ pub struct UnexpectedArgument {
     help: CliAdvice,
 }
 
-#[derive(Debug, Diagnostic)]
+#[derive(Clone, Debug, Diagnostic)]
 #[diagnostic(
     category = "flags/invalid",
     severity = Error,
@@ -121,7 +121,7 @@ pub struct MissingArgument {
     advice: CliAdvice,
 }
 
-#[derive(Debug, Diagnostic)]
+#[derive(Clone, Debug, Diagnostic)]
 #[diagnostic(
     category = "flags/invalid",
     severity = Error,
@@ -129,7 +129,7 @@ pub struct MissingArgument {
 )]
 pub struct EmptyArguments;
 
-#[derive(Debug, Diagnostic)]
+#[derive(Clone, Debug, Diagnostic)]
 #[diagnostic(
     category = "flags/invalid",
     severity = Error,
@@ -143,7 +143,7 @@ pub struct IncompatibleArguments {
     second_argument: String,
 }
 
-#[derive(Debug, Diagnostic)]
+#[derive(Clone, Debug, Diagnostic)]
 #[diagnostic(
     category = "internalError/io",
     severity = Error,
@@ -151,7 +151,7 @@ pub struct IncompatibleArguments {
 )]
 pub struct CheckError;
 
-#[derive(Debug, Diagnostic)]
+#[derive(Clone, Debug, Diagnostic)]
 #[diagnostic(
     category = "flags/invalid",
     severity = Error,
@@ -165,7 +165,7 @@ pub struct OverflowNumberArgument {
     maximum: u16,
 }
 
-#[derive(Debug, Diagnostic)]
+#[derive(Clone, Debug, Diagnostic)]
 #[diagnostic(
     category = "internalError/io",
     severity = Error,
@@ -176,7 +176,7 @@ pub struct IoDiagnostic {
     source: Option<Error>,
 }
 
-#[derive(Debug, Diagnostic)]
+#[derive(Clone, Debug, Diagnostic)]
 #[diagnostic(
     category = "internalError/io",
     severity = Error,
@@ -185,7 +185,7 @@ pub struct IoDiagnostic {
 // TODO: add advice
 pub struct ServerNotRunning;
 
-#[derive(Debug, Diagnostic)]
+#[derive(Clone, Debug, Diagnostic)]
 #[diagnostic(
     category = "internalError/io",
     severity = Error,
@@ -198,7 +198,7 @@ pub struct IncompatibleEndConfiguration {
     reason: String,
 }
 
-#[derive(Debug, Diagnostic)]
+#[derive(Clone, Debug, Diagnostic)]
 #[diagnostic(
     category = "internalError/io",
     severity = Error,
@@ -207,7 +207,7 @@ pub struct IncompatibleEndConfiguration {
 pub struct NoFilesWereProcessed;
 
 /// Advices for the [CliDiagnostic]
-#[derive(Debug, Default)]
+#[derive(Clone, Debug, Default)]
 struct CliAdvice {
     /// Used to print the help command
     sub_command: String,
@@ -510,6 +510,10 @@ impl Diagnostic for CliDiagnostic {
             CliDiagnostic::IncompatibleEndConfiguration(diagnostic) => diagnostic.source(),
             CliDiagnostic::NoFilesWereProcessed(diagnostic) => diagnostic.source(),
         }
+    }
+
+    fn to_owned_diagnostic<'a>(&self) -> Box<dyn Diagnostic + Send + Sync + 'a> {
+        Box::new(self.clone())
     }
 }
 

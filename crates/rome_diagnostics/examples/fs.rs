@@ -6,7 +6,7 @@ use rome_diagnostics::{
 };
 use rome_rowan::{TextRange, TextSize};
 
-#[derive(Debug, Diagnostic)]
+#[derive(Clone, Debug, Diagnostic)]
 #[diagnostic(category = "args/fileNotFound", message = "No matching files found")]
 struct NotFoundDiagnostic {
     #[location(resource)]
@@ -15,7 +15,7 @@ struct NotFoundDiagnostic {
     advices: NotFoundAdvices,
 }
 
-#[derive(Debug)]
+#[derive(Clone, Debug)]
 struct NotFoundAdvices {
     pattern_list: Vec<String>,
     configuration_path: String,

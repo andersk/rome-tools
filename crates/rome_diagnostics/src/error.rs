@@ -75,6 +75,14 @@ impl Error {
     }
 }
 
+impl Clone for Error {
+    fn clone(&self) -> Self {
+        Self {
+            inner: Box::new(self.inner.to_owned_diagnostic()),
+        }
+    }
+}
+
 /// Implement [From] for all types implementing [Diagnostic], [Send], [Sync]
 /// and outlives the `'static` lifetime.
 impl<T> From<T> for Error
@@ -136,10 +144,14 @@ mod tests {
 
     use crate::{Diagnostic, Error, Result};
 
-    #[derive(Debug)]
+    #[derive(Clone, Debug)]
     struct TestDiagnostic(Arc<AtomicBool>);
 
-    impl Diagnostic for TestDiagnostic {}
+    impl Diagnostic for TestDiagnostic {
+        fn to_owned_diagnostic<'a>(&self) -> Box<dyn Diagnostic + Send + Sync + 'a> {
+            Box::new(self.clone())
+        }
+    }
 
     impl Drop for TestDiagnostic {
         fn drop(&mut self) {

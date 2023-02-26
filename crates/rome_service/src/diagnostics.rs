@@ -12,7 +12,7 @@ use std::fmt;
 use std::fmt::{Debug, Display, Formatter};
 use std::process::{ExitCode, Termination};
 
-#[derive(Serialize, Deserialize)]
+#[derive(Clone, Serialize, Deserialize)]
 /// Generic errors thrown during rome operations
 pub enum WorkspaceError {
     /// Can't export the report of the CLI into a file
@@ -239,6 +239,10 @@ impl Diagnostic for WorkspaceError {
             WorkspaceError::FileTooLarge(error) => Diagnostic::source(error),
         }
     }
+
+    fn to_owned_diagnostic<'a>(&self) -> Box<dyn Diagnostic + Send + Sync + 'a> {
+        Box::new(self.clone())
+    }
 }
 
 impl From<FormatError> for WorkspaceError {
@@ -253,14 +257,14 @@ impl From<TransportError> for WorkspaceError {
     }
 }
 
-#[derive(Debug, Serialize, Deserialize, Diagnostic)]
+#[derive(Clone, Debug, Serialize, Deserialize, Diagnostic)]
 #[diagnostic(
     category = "internalError/fs",
     message = "Uncommitted changes in repository"
 )]
 pub struct DirtyWorkspace;
 
-#[derive(Debug, Serialize, Deserialize, Diagnostic)]
+#[derive(Clone, Debug, Serialize, Deserialize, Diagnostic)]
 #[diagnostic(
     category = "internalError/fs",
     message(
@@ -272,7 +276,7 @@ pub struct ReportNotSerializable {
     reason: String,
 }
 
-#[derive(Debug, Serialize, Deserialize, Diagnostic)]
+#[derive(Clone, Debug, Serialize, Deserialize, Diagnostic)]
 #[diagnostic(
     category = "internalError/fs",
     message = "The file does not exist in the workspace.",
@@ -280,14 +284,14 @@ pub struct ReportNotSerializable {
 )]
 pub struct NotFound;
 
-#[derive(Debug, Serialize, Deserialize, Diagnostic)]
+#[derive(Clone, Debug, Serialize, Deserialize, Diagnostic)]
 #[diagnostic(
     category = "format",
     message = "The file does not exist in the workspace."
 )]
 pub struct FormatWithErrorsDisabled;
 
-#[derive(Debug, Serialize, Deserialize, Diagnostic)]
+#[derive(Clone, Debug, Serialize, Deserialize, Diagnostic)]
 #[diagnostic(
     category = "internalError/fs",
     message(
@@ -300,7 +304,7 @@ pub struct CantReadDirectory {
     path: String,
 }
 
-#[derive(Debug, Serialize, Deserialize, Diagnostic)]
+#[derive(Clone, Debug, Serialize, Deserialize, Diagnostic)]
 #[diagnostic(
     category = "internalError/fs",
     message(
@@ -313,7 +317,7 @@ pub struct CantReadFile {
     path: String,
 }
 
-#[derive(Debug, Serialize, Deserialize, Diagnostic)]
+#[derive(Clone, Debug, Serialize, Deserialize, Diagnostic)]
 #[diagnostic(
     category = "internalError/fs",
     message(
@@ -326,7 +330,7 @@ pub struct FileIgnored {
     path: String,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct FileTooLarge {
     path: String,
     size: usize,
@@ -353,9 +357,13 @@ impl Diagnostic for FileTooLarge {
                self.path, Bytes(self.size), Bytes(self.limit)
         )
     }
+
+    fn to_owned_diagnostic<'a>(&self) -> Box<dyn Diagnostic + Send + Sync + 'a> {
+        Box::new(self.clone())
+    }
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct SourceFileNotSupported {
     language: Language,
     path: String,
@@ -388,9 +396,13 @@ impl Diagnostic for SourceFileNotSupported {
             )
         }
     }
+
+    fn to_owned_diagnostic<'a>(&self) -> Box<dyn Diagnostic + Send + Sync + 'a> {
+        Box::new(self.clone())
+    }
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 /// Error emitted by the underlying transport layer for a remote Workspace
 pub enum TransportError {
     /// Error emitted by the transport layer if the connection was lost due to an I/O error
@@ -445,6 +457,10 @@ impl Diagnostic for TransportError {
     }
     fn tags(&self) -> DiagnosticTags {
         DiagnosticTags::INTERNAL
+    }
+
+    fn to_owned_diagnostic<'a>(&self) -> Box<dyn Diagnostic + Send + Sync + 'a> {
+        Box::new(self.clone())
     }
 }
 
